@@ -13,23 +13,45 @@ docker compose up -d
 ```shell
 ./scripts/mongo-init.sh
 ```
+Инициализировать Config Server Replica Set
+Для этого запускаем команду: 
+docker exec -it configSrv mongosh
+Затем в консоли mongosh выполнить:
+rs.initiate({
+_id: "config_server",
+members: [
+{ _id: 0, host: "configSrv:27017" }
+]
+})
 
-## Как проверить
+Выполняем инициализацию шардов:
+Запускаем в терминале для shard1:
+docker exec -it shard1-primary mongosh --port 27018
+затем в консоли:
+rs.initiate({
+_id: "shard1",
+members: [
+{ _id: 0, host: "shard1-primary:27018" },
+{ _id: 1, host: "shard1-secondary1:27018" },
+{ _id: 2, host: "shard1-secondary2:27018" }
+]
+})
 
-### Если вы запускаете проект на локальной машине
+Аналогично для shard2
+docker exec -it shard2-primary mongosh --port 27019
+затем в консоли:
+rs.initiate({
+_id: "shard2",
+members: [
+{ _id: 0, host: "shard2-primary:27019" },
+{ _id: 1, host: "shard2-secondary1:27019" },
+{ _id: 2, host: "shard2-secondary2:27019" }
+]
+})
+Далее подключаемся к mongos_router
+docker exec -it mongos_router mongosh --port 27020
+и добавляем шарды:
 
-Откройте в браузере http://localhost:8080
-
-### Если вы запускаете проект на предоставленной виртуальной машине
-
-Узнать белый ip виртуальной машины
-
-```shell
-curl --silent http://ifconfig.me
-```
-
-Откройте в браузере http://<ip виртуальной машины>:8080
-
-## Доступные эндпоинты
-
-Список доступных эндпоинтов, swagger http://<ip виртуальной машины>:8080/docs
+sh.addShard("shard1/shard1-primary:27018,shard1-secondary1:27018,shard1-secondary2:27018")
+sh.addShard("shard2/shard2-primary:27019,shard2-secondary1:27019,shard2-secondary2:27019")
+sh.status() // (Проверка, что шарды добавлены)
