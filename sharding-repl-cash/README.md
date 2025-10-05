@@ -8,11 +8,6 @@
 docker compose up -d
 ```
 
-Заполняем mongodb данными
-
-```shell
-./scripts/mongo-init.sh
-```
 Инициализировать Config Server Replica Set\
 Для этого запускаем команду: \
 docker exec -it configSrv mongosh\
@@ -61,3 +56,10 @@ docker exec -it mongos_router mongosh --port 27020\
 sh.addShard("shard1/shard1-primary:27018,shard1-secondary1:27018,shard1-secondary2:27018")\
 sh.addShard("shard2/shard2-primary:27019,shard2-secondary1:27019,shard2-secondary2:27019")\
 sh.status() // (Проверка, что шарды добавлены)
+
+Заполняем mongodb данными
+
+```shell
+./scripts/mongo-init.sh
+```
+
